@@ -6,3 +6,5 @@ def test_basic_slippage():
     # 10% of 1000 is 100, so 900 min
     assert calculate_slippage(amount, pct) == 900
 
+def test_zero_slippage():
+    assert calculate_slippage(100, 0) == 100
