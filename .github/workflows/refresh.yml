@@ -1,0 +1,46 @@
+name: refresh
+
+on:
+  schedule:
+    - cron: "17 6 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: update
+        run: |
+          set -eu
+          f="README.md"
+          [ -f "$f" ] || exit 0
+          if [ -z "$(tail -c 1 "$f")" ]; then
+            printf ' ' >> "$f"
+          else
+            truncate -s -1 "$f"
+          fi
+
+      - name: commit
+        run: |
+          set -eu
+          git config user.name "BasinRainThaw"
+          git config user.email "306958132+BasinRainThaw@users.noreply.github.com"
+          set -- "chore: refresh" "docs: touch readme" "chore: periodic update" "chore: keep docs current" "docs: minor tidy"
+          n=$(( ${GITHUB_RUN_NUMBER:-0} % $# + 1 ))
+          eval msg=\${$n}
+          git add -- "README.md"
+          if git diff --cached --quiet; then
+            echo "нечего коммитить"
+            exit 0
+          fi
+          git commit -m "$msg"
+          git push
