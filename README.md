@@ -20,4 +20,3 @@ Don't run this with big amounts unless you've checked the honeypot logic recentl
 - [ ] fix the weird hang when node drops connection
 
 license: MIT
- 
